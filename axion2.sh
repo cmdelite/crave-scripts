@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Axion ROM Build Script with Crave Sync
 set -euo pipefail
@@ -21,7 +21,7 @@ BUILD_TYPE="userdebug"
 GAPPS="gms pico"
 BUILD_LOG="axion-build-$(date +%Y%m%d-%H%M%S).log"
 
-# Crave Sync Script (only Crave component)
+# Crave Sync Script
 CRAVE_SYNC="/opt/crave/resync.sh"
 
 # Status Messaging
@@ -53,7 +53,7 @@ sync_sources() {
   status success "Source synchronization completed"
 }
 
-# Build Configuration (using Axion ROM commands)
+# Build Configuration
 configure_build() {
   status start "Setting up build environment"
   source build/envsetup.sh
@@ -68,7 +68,7 @@ configure_build() {
   status success "Lunch successful: $DEVICE-$BUILD_TYPE with $GAPPS"
 }
 
-# Build Execution (using Axion ROM's build system)
+# Build Execution
 execute_build() {
   status start "Starting Axion build process"
   status info "Build output logged to $BUILD_LOG"
