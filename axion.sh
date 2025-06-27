@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rm -rf .repo/local_manifests
+
 # Init
 repo init -u https://github.com/AxionAOSP/android.git -b lineage-22.2 --git-lfs --depth=1
 echo "~~~~~~~~~~~"
