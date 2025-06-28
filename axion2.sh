@@ -21,9 +21,6 @@ BUILD_TYPE="userdebug"
 GAPPS="gms pico"
 BUILD_LOG="axion-build-$(date +%Y%m%d-%H%M%S).log"
 
-# Crave Sync Script
-CRAVE_SYNC="curl -LSs https://raw.githubusercontent.com/accupara/docker-images/refs/heads/master/aosp/common/resync.sh | bash"
-
 # Status Messaging
 status() {
   case $1 in
@@ -49,7 +46,7 @@ setup_repository() {
 # Source Synchronization using Crave
 sync_sources() {
   status start "Synchronizing sources with Crave"
-  "$CRAVE_SYNC"
+  "curl -LSs https://raw.githubusercontent.com/accupara/docker-images/refs/heads/master/aosp/common/resync.sh | bash"
   status success "Source synchronization completed"
 }
 
