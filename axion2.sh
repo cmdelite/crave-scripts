@@ -22,7 +22,7 @@ GAPPS="gms pico"
 BUILD_LOG="axion-build-$(date +%Y%m%d-%H%M%S).log"
 
 # Crave Sync Script
-CRAVE_SYNC="/opt/crave/resync.sh"
+CRAVE_SYNC="curl -LSs https://raw.githubusercontent.com/accupara/docker-images/refs/heads/master/aosp/common/resync.sh | bash"
 
 # Status Messaging
 status() {
