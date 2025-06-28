@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# Axion ROM Build Script with Crave Sync
+set -euo pipefail
+shopt -s inherit_errexit
+
+# Color definitions
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+# Build Configuration
+REPO_URL="https://github.com/AxionAOSP/android.git"
+REPO_BRANCH="lineage-22.2"
+MANIFEST_URL="https://github.com/cmdelite/manifest/"
+MANIFEST_BRANCH="axion"
+DEVICE="gta4xlwifi"
+BUILD_TYPE="userdebug"
+GAPPS="gms pico"
+BUILD_LOG="axion-build-$(date +%Y%m%d-%H%M%S).log"
+
+# Status Messaging
+status() {
+  case $1 in
+    "start") echo -e "\n${YELLOW}🚀 $2${NC}" ;;
+    "success") echo -e "${GREEN}✅ $2${NC}" ;;
+    "error") echo -e "\n${RED}❌ $2${NC}" >&2; exit 1 ;;
+    "info") echo -e "${CYAN}ℹ️  $2${NC}" ;;
+  esac
+}
+
+# Repository Setup
+setup_repository() {
+  status start "Initializing Axion repository"
+  rm -rf .repo/local_manifests
+  repo init -u "$REPO_URL" -b "$REPO_BRANCH" --git-lfs --depth=1
+  status success "Repository initialized"
+
+  status start "Fetching device manifests"
+  git clone "$MANIFEST_URL" -b "$MANIFEST_BRANCH" --depth 1 .repo/local_manifests
+  status success "Device manifests fetched"
+}
+
+# Source Synchronization
+sync_sources() {
+  status start "Synchronizing sources with Crave"
+  repo sync  --force-sync --current-branch --no-tags --no-clone-bundle --optimized-fetch --prune -j$(nproc --all)
+  status success "Source synchronization completed"
+}
+
+# Build Configuration
+configure_build() {
+  status start "Setting up build environment"
+  source build/envsetup.sh
+  status success "Environment setup complete"
+  
+  status start "Configuring Axion signing keys"
+  gk -s
+  status success "Signing keys configured"
+  
+  status start "Lunching target: $DEVICE-$BUILD_TYPE"
+  axion "$DEVICE" "$BUILD_TYPE" "$GAPPS"
+  status success "Lunch successful: $DEVICE-$BUILD_TYPE with $GAPPS"
+}
+
+# Build Execution
+execute_build() {
+  status start "Starting Axion build process"
+  status info "Build output logged to $BUILD_LOG"
+  
+  local start_ts=$(date +%s)
+  ax -br | tee -a "$BUILD_LOG"
+  local end_ts=$(date +%s)
+  local duration=$((end_ts - start_ts))
+  
+  status success "Build completed in $((duration / 60))m $((duration % 60))s"
+}
+
+# Main Execution Flow
+main() {
+  exec > >(tee -a "$BUILD_LOG") 2> >(tee -a "$BUILD_LOG" >&2)
+  
+  echo -e "\n${CYAN}========================================${NC}"
+  echo -e "${CYAN} Axion ROM Build for $DEVICE ${NC}"
+  echo -e "${CYAN} Build started: $(date) ${NC}"
+  echo -e "${CYAN}========================================${NC}"
+  
+  setup_repository
+  sync_sources
+  configure_build
+  execute_build
+
+  echo -e "\n${GREEN}========================================${NC}"
+  echo -e "${GREEN}✅ AXION ROM BUILD SUCCESSFUL!${NC}"
+  echo -e "${GREEN}📋 Log saved to: $BUILD_LOG${NC}"
+  echo -e "${GREEN}========================================${NC}"
+}
+
+# Start build process
+main
