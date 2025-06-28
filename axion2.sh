@@ -46,7 +46,7 @@ setup_repository() {
 # Source Synchronization using Crave
 sync_sources() {
   status start "Synchronizing sources with Crave"
-  curl -LSs https://raw.githubusercontent.com/accupara/docker-images/refs/heads/master/aosp/common/resync.sh | bash
+  repo sync  --force-sync --current-branch --no-tags --no-clone-bundle --optimized-fetch --prune -j$(nproc --all)
   status success "Source synchronization completed"
 }
 
